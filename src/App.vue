@@ -2,13 +2,13 @@
   <div class="VueXlsx">
     <section>
       <section>
-        <h3>Import File</h3>
-        <input type="file" @change="onChange" />
+        <h2>Import File</h2>
+        <input type="file" @change="onChange" class="mb-5" />
         <xlsx-read :file="file">
-          <template #default="{loading}">
+          <template #default="{ loading }">
             <span v-if="loading">Loading...</span>
             <xlsx-sheets>
-              <template #default="{sheets}">
+              <template #default="{ sheets }">
                 <select v-model="selectedSheet">
                   <option value="">Chọn sheet</option>
                   <option v-for="sheet in sheets" :key="sheet" :value="sheet">
@@ -17,29 +17,20 @@
                 </select>
               </template>
             </xlsx-sheets>
-            <!-- <xlsx-table :sheet="selectedSheet" /> -->
             <xlsx-json :sheet="selectedSheet" @parsed="updateColecction">
-              <!-- <template #default="{collection}">
-              <div>
-                {{ collection }}
-              </div>
-            </template> -->
             </xlsx-json>
           </template>
         </xlsx-read>
       </section>
       <hr />
-      <h3>Xuất file</h3>
+      <h2>Xuất file</h2>
       <div>
-        <input v-model="sheetName" placeholder="type a new sheet name" />
-        <button v-if="sheetName" @click="addSheet">Add Sheet</button>
+        <button v-if="sheetName" @click="addSheet" class="mb-5">
+          Tạo dữ liệu
+        </button>
       </div>
 
-      <!-- <div>
-        <input type="file" @change="onJsonFileChange" />
-      </div> -->
-      <div>Sheets: {{ sheets }}</div>
-
+      <div class="mb-5">Dữ liệu : {{ sheets }}</div>
       <xlsx-workbook>
         <xlsx-sheet
           :collection="sheet.data"
@@ -52,8 +43,8 @@
           v-if="jsonFile"
           sheet-name="fromJson"
         />
-        <xlsx-download>
-          <button>Download</button>
+        <xlsx-download @done="updateColecction">
+          <button>Tải về</button>
         </xlsx-download>
       </xlsx-workbook>
     </section>
@@ -75,16 +66,16 @@ export default {
     XlsxJson,
     XlsxWorkbook,
     XlsxSheet,
-    XlsxDownload
+    XlsxDownload,
   },
   data() {
     return {
       file: null,
       selectedSheet: null,
-      sheetName: null,
+      sheetName: "Dữ liệu",
       sheets: [],
       collection: [],
-      jsonFile: null
+      jsonFile: null,
     };
   },
   methods: {
@@ -93,7 +84,7 @@ export default {
     },
     onJsonFileChange(event) {
       const reader = new FileReader();
-      reader.onload = evt => {
+      reader.onload = (evt) => {
         console.log(this.jsonFile);
         this.jsonFile = JSON.parse(evt.target.result);
       };
@@ -101,13 +92,26 @@ export default {
     },
     updateColecction(data) {
       this.collection = data;
+      this.sheets = [];
     },
     addSheet() {
       this.sheets.push({ name: this.sheetName, data: [...this.collection] });
-      this.sheetName = null;
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style></style>
+<style>
+.mt-5 {
+  margin-top: 10px;
+}
+.mb-5 {
+  margin-bottom: 10px;
+}
+
+.VueXlsx {
+  background-color: antiquewhite;
+  height: 100vh;
+  padding: 50px;
+}
+</style>

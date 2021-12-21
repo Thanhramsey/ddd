@@ -4,20 +4,20 @@ export default {
   props: {
     filename: {
       type: String,
-      default: "my-workbook.xlsx"
+      default: "tong_quan_ki_thi.xlsx",
     },
     options: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     disableWrapperClick: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
-      loaded: false
+      loaded: false,
     };
   },
   mounted() {
@@ -28,26 +28,35 @@ export default {
       immediate: true,
       handler(loaded) {
         if (loaded) {
-          this.getWorkbook(wb => {
+          this.getWorkbook((wb) => {
             this._workbook = wb;
           });
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     async load() {
       const { writeFile } = await import("xlsx");
       this._writeFile = writeFile;
       const {
-        utils: { json_to_sheet }
+        utils: { json_to_sheet },
       } = await import("xlsx");
       this.json_to_sheet = json_to_sheet;
       this.loaded = true;
     },
     download() {
+      const ws = this._workbook.Sheets["Dữ liệu"];
+      ws["!cols"] = [
+        { width: 60 },
+        { width: 20 },
+        { width: 20 },
+        { width: 20 },
+        { width: 20 },
+      ];
       this._writeFile(this._workbook, this.filename, this.options);
-    }
+      this.$emit("done", {});
+    },
   },
   render(h) {
     if (this.$scopedSlots.default && this.loaded) {
@@ -55,17 +64,17 @@ export default {
         "div",
         {
           on: {
-            click: this.disableWrapperClick ? () => {} : this.download
-          }
+            click: this.disableWrapperClick ? () => {} : this.download,
+          },
         },
         [
           this.$scopedSlots.default({
-            download: this.download
-          })
+            download: this.download,
+          }),
         ]
       );
     }
     return null;
-  }
+  },
 };
 </script>
