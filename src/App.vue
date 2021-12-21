@@ -1,0 +1,113 @@
+<template>
+  <div class="VueXlsx">
+    <section>
+      <section>
+        <h3>Import File</h3>
+        <input type="file" @change="onChange" />
+        <xlsx-read :file="file">
+          <template #default="{loading}">
+            <span v-if="loading">Loading...</span>
+            <xlsx-sheets>
+              <template #default="{sheets}">
+                <select v-model="selectedSheet">
+                  <option value="">Chọn sheet</option>
+                  <option v-for="sheet in sheets" :key="sheet" :value="sheet">
+                    {{ sheet }}
+                  </option>
+                </select>
+              </template>
+            </xlsx-sheets>
+            <!-- <xlsx-table :sheet="selectedSheet" /> -->
+            <xlsx-json :sheet="selectedSheet" @parsed="updateColecction">
+              <!-- <template #default="{collection}">
+              <div>
+                {{ collection }}
+              </div>
+            </template> -->
+            </xlsx-json>
+          </template>
+        </xlsx-read>
+      </section>
+      <hr />
+      <h3>Xuất file</h3>
+      <div>
+        <input v-model="sheetName" placeholder="type a new sheet name" />
+        <button v-if="sheetName" @click="addSheet">Add Sheet</button>
+      </div>
+
+      <!-- <div>
+        <input type="file" @change="onJsonFileChange" />
+      </div> -->
+      <div>Sheets: {{ sheets }}</div>
+
+      <xlsx-workbook>
+        <xlsx-sheet
+          :collection="sheet.data"
+          v-for="sheet in sheets"
+          :key="sheet.name"
+          :sheet-name="sheet.name"
+        />
+        <xlsx-sheet
+          :collection="jsonFile"
+          v-if="jsonFile"
+          sheet-name="fromJson"
+        />
+        <xlsx-download>
+          <button>Download</button>
+        </xlsx-download>
+      </xlsx-workbook>
+    </section>
+  </div>
+</template>
+
+<script>
+import XlsxRead from "./components/XlsxRead";
+import XlsxSheets from "./components/XlsxSheets";
+import XlsxJson from "./components/XlsxJson";
+import XlsxWorkbook from "./components/XlsxWorkbook";
+import XlsxSheet from "./components/XlsxSheet";
+import XlsxDownload from "./components/XlsxDownload";
+
+export default {
+  components: {
+    XlsxRead,
+    XlsxSheets,
+    XlsxJson,
+    XlsxWorkbook,
+    XlsxSheet,
+    XlsxDownload
+  },
+  data() {
+    return {
+      file: null,
+      selectedSheet: null,
+      sheetName: null,
+      sheets: [],
+      collection: [],
+      jsonFile: null
+    };
+  },
+  methods: {
+    onChange(event) {
+      this.file = event.target.files ? event.target.files[0] : null;
+    },
+    onJsonFileChange(event) {
+      const reader = new FileReader();
+      reader.onload = evt => {
+        console.log(this.jsonFile);
+        this.jsonFile = JSON.parse(evt.target.result);
+      };
+      reader.readAsText(event.target.files[0]);
+    },
+    updateColecction(data) {
+      this.collection = data;
+    },
+    addSheet() {
+      this.sheets.push({ name: this.sheetName, data: [...this.collection] });
+      this.sheetName = null;
+    }
+  }
+};
+</script>
+
+<style></style>
